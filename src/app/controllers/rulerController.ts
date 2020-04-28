@@ -1,15 +1,25 @@
 import { Request, Response, NextFunction } from "express";
 import { Controller, Get, Post, RequiredParams, ConvertToLowercase } from "../helpers/decorators";
-import { UserModel } from "../models/user";
+import { RulerModel } from "../models/rulerModel";
+@Controller("/ruler")
 
-@Controller("/users")
 
-
-export class UsersController{
+export class RulerController{
     
     @Get()
     private _testCall(req: Request, resp: Response, next: NextFunction){
-        UserModel.find((err: any, res: any[]) => {
+        RulerModel.find((err: any, res: any[]) => {
+            if(!err){
+                resp.json(res);
+
+            }else{
+                resp.json({ status: false, message: err.message});
+            }
+        })
+    }
+    @Get("/leader/:id")
+    private _getCall(req: Request, resp: Response, next: NextFunction){
+        RulerModel.findById({_id:req.params.id},(err: any, res: any[]) => {
             if(!err){
                 resp.json(res);
 
@@ -19,15 +29,30 @@ export class UsersController{
         })
     }
 
-    @Post()
-    @RequiredParams(["name", "email"])
-    @ConvertToLowercase(["email"])
+    @Post("/addruler")
+    @RequiredParams(["name", "location","country","age"])
+    @ConvertToLowercase(["country","location"])
     private _postCall(req: any, resp: Response, next: NextFunction){
-        let { name, email} = req.body;
-        let newUser = new UserModel({name, email});
-        newUser.save((err: any, user: any) => {
+        let { name, location,country,age} = req.body;
+        let newRuler = new RulerModel({ name, location,country,age});
+        newRuler.save((err: any, ruler: any) => {
             if(!err){
                 resp.json({status: true})
+            }else{
+                resp.json({ status: false, message: err.message});
+            }
+        })
+    }
+    @Post("/newleader")
+    @RequiredParams(["name", "location","country","age"])
+    @ConvertToLowercase(["country","location"])
+    private _PostCall(req: any, resp: Response, next: NextFunction){
+        let { name, location,country,age,qualification} = req.body;
+        let newRuler = new RulerModel({ name, location,country,age,qualification});
+        newRuler.save((err: any, ruler: any) => {
+            if(!err){
+                resp.json({status: true})
+                console.log(ruler.name+" is added to database")
             }else{
                 resp.json({ status: false, message: err.message});
             }
